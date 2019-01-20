@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>邮件发送</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div style="margin-left: 20px;">
+    <form role="form">
+        <div class="form-group">
+            <label>收件人</label>
+            <input style="width: 300px;" type="text" class="form-control" id="receiver" name="receiver"
+                   placeholder="收件人">
+        </div>
+        <div class="form-group">
+            <label>主题</label>
+            <input style="width: 300px;" type="text" class="form-control" id="subject" name="subject" placeholder="主题">
+        </div>
+        <div class="form-group">
+            <label>内容</label>
+            <input style="width: 300px;" type="text" class="form-control" id="content" name="content" placeholder="内容">
+        </div>
+        <div class="form-group">
+            <label>附件</label>
+            <form>
+                <input  type="file" multiple id="file" name="file[]" >
+                <input  type="button" id="btn" value="上传"/>
+            </form>
+            <input type="hidden" id="attachment" name="attachment">
+        </div>
+
+        <button type="submit" id="send" class="btn btn-default">提交</button>
+    </form>
+</div>
+<script>
+    $(function () {
+        $('#send').click(function () {
+            var d = {};
+            var t = $('form').serializeArray();
+            $.each(t, function () {
+                d[this.name] = this.value;
+            });
+            console.log(JSON.stringify(d));
+
+            $.ajax({
+                type: "POST",
+                url: "/mail-demo/mail/send",
+                data: JSON.stringify(d),
+                cache: false,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    alert(data.message);
+                },
+                error: function (err) {
+                    alert(err);
+                }
+            });
+        });
+
+        $("#btn").click(function(){
+
+            var formData = new FormData();
+            for(var i=0; i<$('#file')[0].files.length;i++){
+                formData.append('file', $('#file')[0].files[i]);
+            }
+
+            $.ajax({
+                type: "POST",
+                data: formData,
+                url: "/mail-demo/mail/upload",
+                contentType: false,
+                processData: false,
+            }).success(function (res) {
+                var data = res.data;
+                if (res.status) {
+                    var attachUrls = "";
+                    for(var i = 0;i<data.length;i++){
+                        var item = data[i];
+                        attachUrls += item.url+"|";
+                    }
+                    $("#attachment").val(attachUrls);
+                    console.log(attachUrls);
+                } else {
+                    console.log(res.message);
+                }
+            }).error(function (data) {
+                alert(data);
+                console.log(data);
+            });
+
+        });
+
+    });
+</script>
+</body>
+</html>

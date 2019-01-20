@@ -1,0 +1,26 @@
+
+  #邮箱配置
+  spring:
+    mail:
+      host: smtp.163.com
+      #发送者邮箱账号
+      username: 13652878074@163.com
+      #发送者密钥
+      password: zero123
+      default-encoding: utf-8
+      port: 465   #端口号465或587
+      protocol: smtp
+      properties:
+        mail:
+          debug:
+            false
+          smtp:
+            socketFactory:
+              class: javax.net.ssl.SSLSocketFactory
+    thymeleaf:
+      prefix: classpath:/templates/
+      cache: false
+  server:
+    port: 8081
+    servlet:
+      context-path: /mail-demo
